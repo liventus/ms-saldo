@@ -16,8 +16,11 @@ public class SaldoEntity {
 
     @Id
     private String id;
-    private String tipoDeProducto;
-    private String nombreDeProducto;
+    private String producto;
+    private String cliente;
+    private Number titular;
+    private Number firmante;
+    private Number saldo;
 
 
 

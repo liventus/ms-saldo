@@ -2,20 +2,18 @@ package com.lizana.mssaldo.services.impl;
 
 
 import com.lizana.mssaldo.model.dto.SaldoDto;
-import com.lizana.mssaldo.model.dto.Status;
+import com.lizana.mssaldo.model.dto.StatusResponse;
 import com.lizana.mssaldo.model.entity.SaldoEntity;
 import com.lizana.mssaldo.repository.SaldoRepository;
 import com.lizana.mssaldo.services.SaldoService;
+import com.lizana.mssaldo.util.ValidatorException;
 import com.lizana.mssaldo.util.SaldoUtil;
-import io.reactivex.rxjava3.core.Completable;
+import com.lizana.mssaldo.util.SaldoValidator;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -27,25 +25,35 @@ public class ProductServiceImpl implements SaldoService {
 
 
     @Override
-    public Maybe<SaldoDto> saveProduct(SaldoDto productDto) {
+    public Maybe<StatusResponse> saveProduct(SaldoDto saldoDto) {
+
+        try {
+            SaldoValidator.validateClientObject(saldoDto);
+        } catch (ValidatorException ex) {
+            return Maybe.just(ex.getStatusResponse());
+        }
+
         //guarda el producto
-        Mono<SaldoEntity> savedEntity = productRepository.save(SaldoUtil.dtoToEntity(productDto));
-        return Maybe.fromPublisher(savedEntity.map(SaldoUtil::entityToDto));
+
+        return Maybe.fromPublisher(productRepository
+                .save(SaldoUtil.dtoToEntity(saldoDto))
+                .map(SaldoUtil::entityToDto))
+                .map(x -> SaldoUtil.setStatusResponse(HttpStatus.CREATED, x));
     }
 
     @Override
-    public Maybe<Status> deleteProduct(String idProduct) {
+    public Maybe<StatusResponse> deleteProduct(String idProduct) {
         return Maybe.fromPublisher(
                 productRepository.findById(idProduct)
                         .flatMap(product -> {
                             if (product != null) {
                                 return productRepository.deleteById(product.getId())
-                                        .then(Mono.just(new Status("asd", "a")));
+                                        .then(Mono.just(new StatusResponse(1, "a",null)));
                             } else {
                                 return Mono.empty();
                             }
                         })
-                        .switchIfEmpty(Mono.just(new Status("NOT_FOUND", "Product not found")))
+                        .switchIfEmpty(Mono.just(new StatusResponse(1, "Product not found",null)))
         );
 
     }
