@@ -13,10 +13,10 @@ public interface SaldoService {
 
     Maybe<StatusResponse> deleteProduct(String idProducto);
 
-    Maybe<SaldoDto>  getProduct(String idProduct);
+    Maybe<StatusResponse>  getProduct(String idProduct);
 
 
-    Maybe<SaldoDto> updateProduct(SaldoDto ProductObject);
+    Maybe<StatusResponse> updateProduct(SaldoDto ProductObject);
 
     Flowable<SaldoDto> getProductAll();
 

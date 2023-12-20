@@ -59,16 +59,16 @@ public class ProductServiceImpl implements SaldoService {
     }
 
     @Override
-    public Maybe<SaldoDto> getProduct(String idProduct) {
+    public Maybe<StatusResponse> getProduct(String idProduct) {
         //extrae el producto
         Mono<SaldoEntity> para = productRepository.findById(idProduct);
-        return Maybe.fromPublisher(para.map(SaldoUtil::entityToDto));
+        return Maybe.fromPublisher(para.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x)));
     }
 
     @Override
-    public Maybe<SaldoDto> updateProduct(SaldoDto ProductObject) {
+    public Maybe<StatusResponse> updateProduct(SaldoDto ProductObject) {
         Mono<SaldoEntity> updateEntity = productRepository.save(SaldoUtil.dtoToEntity(ProductObject));
-        return Maybe.fromPublisher(updateEntity.map(SaldoUtil::entityToDto));
+        return Maybe.fromPublisher(updateEntity.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x)));
     }
 
     @Override

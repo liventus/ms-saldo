@@ -27,13 +27,13 @@ public class PerfilController {
 
 
     @GetMapping
-    public Maybe<SaldoDto> buscarPor(@RequestHeader String productId) {
+    public Maybe<StatusResponse> buscarPor(@RequestHeader String productId) {
         return saldoService.getProduct(productId);
     }
 
 
     @PutMapping
-    public Maybe<SaldoDto> update(@RequestBody SaldoDto product) {
+    public Maybe<StatusResponse> update(@RequestBody SaldoDto product) {
         return saldoService.updateProduct(product);
     }
 
