@@ -6,14 +6,11 @@ import com.lizana.mssaldo.model.dto.StatusResponse;
 import com.lizana.mssaldo.model.entity.SaldoEntity;
 import com.lizana.mssaldo.repository.SaldoRepository;
 import com.lizana.mssaldo.services.SaldoService;
-import com.lizana.mssaldo.util.ValidatorException;
 import com.lizana.mssaldo.util.SaldoUtil;
-import com.lizana.mssaldo.util.SaldoValidator;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Maybe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -25,25 +22,17 @@ public class ProductServiceImpl implements SaldoService {
 
 
     @Override
-    public Maybe<StatusResponse> saveProduct(SaldoDto saldoDto) {
+    public Mono<StatusResponse> create(SaldoDto saldoDto) {
 
-        try {
-            SaldoValidator.validateClientObject(saldoDto);
-        } catch (ValidatorException ex) {
-            return Maybe.just(ex.getStatusResponse());
-        }
-
-        //guarda el producto
-
-        return Maybe.fromPublisher(productRepository
+        return productRepository
                 .save(SaldoUtil.dtoToEntity(saldoDto))
-                .map(SaldoUtil::entityToDto))
+                .map(SaldoUtil::entityToDto)
                 .map(x -> SaldoUtil.setStatusResponse(HttpStatus.CREATED, x));
     }
 
     @Override
-    public Maybe<StatusResponse> deleteProduct(String idProduct) {
-        return Maybe.fromPublisher(
+    public Mono<StatusResponse> delete(String idProduct) {
+        return
                 productRepository.findById(idProduct)
                         .flatMap(product -> {
                             if (product != null) {
@@ -54,27 +43,26 @@ public class ProductServiceImpl implements SaldoService {
                             }
                         })
                         .switchIfEmpty(Mono.just(new StatusResponse(1, "Product not found",null)))
-        );
+        ;
 
     }
 
     @Override
-    public Maybe<StatusResponse> getProduct(String idProduct) {
+    public Mono<StatusResponse> findById(String idProduct) {
         //extrae el producto
         Mono<SaldoEntity> para = productRepository.findById(idProduct);
-        return Maybe.fromPublisher(para.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x)));
+        return para.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x));
     }
 
     @Override
-    public Maybe<StatusResponse> updateProduct(SaldoDto ProductObject) {
+    public Mono<StatusResponse> update(SaldoDto ProductObject) {
         Mono<SaldoEntity> updateEntity = productRepository.save(SaldoUtil.dtoToEntity(ProductObject));
-        return Maybe.fromPublisher(updateEntity.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x)));
+        return updateEntity.map(SaldoUtil::entityToDto).map(x -> SaldoUtil.setStatusResponse(HttpStatus.OK, x));
     }
 
     @Override
-    public Flowable<SaldoDto> getProductAll() {
-        return Flowable
-                .fromPublisher(productRepository.findAll().map(SaldoUtil::entityToDto));
+    public Flux<SaldoDto> findAll() {
+        return productRepository.findAll().map(SaldoUtil::entityToDto);
     }
 
 

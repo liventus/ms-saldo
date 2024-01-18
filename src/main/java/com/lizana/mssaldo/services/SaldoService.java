@@ -3,22 +3,23 @@ package com.lizana.mssaldo.services;
 
 import com.lizana.mssaldo.model.dto.SaldoDto;
 import com.lizana.mssaldo.model.dto.StatusResponse;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Maybe;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 
 public interface SaldoService {
 
-    Maybe<StatusResponse> saveProduct(SaldoDto ProductObject);
+    Mono<StatusResponse> create(SaldoDto ProductObject);
 
-    Maybe<StatusResponse> deleteProduct(String idProducto);
+    Mono<StatusResponse> delete(String idProducto);
 
-    Maybe<StatusResponse>  getProduct(String idProduct);
+    Mono<StatusResponse> findById(String idProduct);
 
 
-    Maybe<StatusResponse> updateProduct(SaldoDto ProductObject);
+    Mono<StatusResponse> update(SaldoDto ProductObject);
 
-    Flowable<SaldoDto> getProductAll();
+    Flux<SaldoDto> findAll();
 
 
 
